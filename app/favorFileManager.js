@@ -2,7 +2,6 @@
 
 angular.module('Favor.FileManager',[])
 .factory('FavorFileModel',function($rootScope){
-	
 	var fileMeta;
 
 	FileObj = {};
@@ -70,7 +69,7 @@ angular.module('Favor.FileManager',[])
 
 	return FileObj;
 })
-.factory('FavorOpenFilesModel',function($rootScope, $q){
+.factory('FavorOpenFilesModel',function($rootScope, $q, FavorFileModel){
 	
 	var files = [];
 	var activeFiles = [];
@@ -86,6 +85,7 @@ angular.module('Favor.FileManager',[])
 				a.active=false;
 			}
 		});
+		console.log(activeFiles);
 		$rootScope.$broadcast('updateActiveFiles',activeFiles)
 		return ;
 	}
@@ -131,12 +131,17 @@ angular.module('Favor.FileManager',[])
 		var isOpen = findFileIdx(file, files);
 		if(isOpen.length === 0){ //file was not found in array of open files
 			files.push(file);
-			isOpen.push(files.length-1);
+		//	isOpen.push(files.length-1);
 		}
 		if(file.active===true) return removeFromActive(file);
 		if(multi==='click' || !multi) return changeActive(activeFiles=[file]);
 		activeFiles.push(file);
 		if(multi==='ctrl-click') return changeActive(activeFiles);
+	}
+
+	OpenFilesObj.checkFileIsOpen = function(file){
+		if(files.length===0 || findFileIdx({path:file},files).length===0) return FavorFileModel.openFile(file); 
+		return OpenFilesObj.openFile(false,files[findFileIdx({path:file},files)[0]]); //find in the tabs and set to active
 	}
 
 	OpenFilesObj.files = function(){
@@ -163,7 +168,7 @@ angular.module('Favor.FileManager',[])
 	}
 
 	return OpenFilesObj;
-});
+})
 .controller('FavorOpenFilesCtrl',function($scope, FavorOpenFilesModel, FavorFileModel){
 
 	$scope.files = FavorOpenFilesModel.files();
@@ -187,9 +192,13 @@ angular.module('Favor.FileManager',[])
 		'ctrl-click': $scope.setActive
 	}
 
+	$scope.$on('openFile',function(event,file){
+		FavorOpenFilesModel.checkFileIsOpen(file);
+	});
 
 	$scope.$on('fileContentChanged',function(event,multi,file){
-		OpenFilesModel.openFile(multi,file);
+		FavorOpenFilesModel.openFile(multi,file);
+		$scope.$apply();
 	});
 
 	$scope.$on('closeFile',function(event,file){
@@ -208,5 +217,5 @@ angular.module('Favor.FileManager',[])
 			}
 		});
 	});
-});'use static';
+});
 
