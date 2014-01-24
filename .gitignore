@@ -1,6 +1,6 @@
 node_modules/
 .tmp
 .sass-cache
-sample/bower_components
-sample/favor-packages
-sample/node_modules
+sample/bower_components/
+sample/favor-packages/
+sample/node_modules/
