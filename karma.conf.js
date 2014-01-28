@@ -13,6 +13,7 @@ module.exports = function(config) {
     files: [
       'sample/bower_components/angular/angular.js',
       'sample/bower_components/angular-mocks/angular-mocks.js',
+      'sample/bower_components/jquery/jquery.js',
       'dist/favorFileManager.js',
       'test/mocks/*.js',
       'test/spec/*.js'

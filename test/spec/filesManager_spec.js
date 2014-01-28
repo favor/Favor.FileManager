@@ -1,12 +1,13 @@
 'use strict';
 
 describe('FileSystem', function () {
-  var scope;
+  var scope, rootScope;
 
   beforeEach(angular.mock.module('Favor.FileManager'));
   beforeEach(angular.mock.inject(function($rootScope,$controller){
   	scope = $rootScope.$new();
-  	$controller('FavorOpenFilesCtrl',{$scope:scope});
+    rootScope = $rootScope
+  	$controller('FavorOpenFilesCtrl',{$scope:scope,$rootScope:rootScope});
   })
   );
 
@@ -14,6 +15,12 @@ describe('FileSystem', function () {
     it('should have multiple open files', function(){
        scope.files = fileManagerMock;
        expect(scope.files.length).toBeGreaterThan(1);
+    });
+    it('should open a new file and add the meta data',function(){
+      var path="/demo/path.js",
+      data="some data in a file";
+      rootScope.$broadcast('favorFileOpened',false,path,data);
+      expect(scope.files[0].content).toBe(data);
     });
   });
 
@@ -48,6 +55,5 @@ describe('FileSystem', function () {
       expect(scope.files[0].contentMatchesFound).toBe(6);
       expect(scope.files[1].contentMatchesFound).toBe(2);
     });
-
   });
 });

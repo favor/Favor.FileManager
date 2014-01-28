@@ -5,18 +5,15 @@ angular.module('Favor.FileManager',[])
 	var fileMeta;
 
 	FileObj = {};
-	FileObj.openFile = function(path){
-		fs.readFile(path,"utf-8",function(err,data){
-			if(err) return console.log(data);
-			fileMeta = createFileMeta(path,data);
-			$rootScope.$broadcast('fileContentChanged', false,FileObj.file());
-		});
+	
+	FileObj.openFile = function(path,data){
+		fileMeta = createFileMeta(path,data);
+		$rootScope.$broadcast('favorFileOpened',false, FileObj.file());
 	}
-
 	FileObj.createFile = function(content){
 		fileMeta = createFileMeta('', content || '');
 		fileMeta.created_new = getTime();
-		$rootScope.$broadcast('fileContentChanged',false, FileObj.file());
+		$rootScope.$broadcast('favorFileOpened',false, FileObj.file());
 		return;
 	}
 
@@ -139,7 +136,7 @@ angular.module('Favor.FileManager',[])
 	}
 
 	OpenFilesObj.checkFileIsOpen = function(file){
-		if(files.length===0 || findFileIdx({path:file},files).length===0) return FavorFileModel.openFile(file); 
+		if(files.length===0 || findFileIdx({path:file},files).length===0) return false; 
 		return OpenFilesObj.openFile(false,files[findFileIdx({path:file},files)[0]]); //find in the tabs and set to active
 	}
 
@@ -221,7 +218,9 @@ angular.module('Favor.FileManager',[])
 		FavorOpenFilesModel.checkFileIsOpen(file);
 	});
 
-	$scope.$on('fileContentChanged',function(event,multi,file){
+	$scope.$on('favorFileOpened',function(event,multi,file,data){
+		//this may have been passed from filesystem and therefore is not a file object yet. 
+		if(typeof file === 'string') return FavorFileModel.openFile(file,data);
 		FavorOpenFilesModel.openFile(multi,file);
 		$scope.$apply();
 	});
